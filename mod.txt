@@ -1,6 +1,6 @@
 {
 	"name" : "Spread Fix",
-	"description" : "fuck.",
+	"description" : "Fixes spread pattern.",
 	"author" : "Skwuruhl",
 	"contact" : "reddit.com/u/skwuruhl",
 	"version" : "v1.0",
