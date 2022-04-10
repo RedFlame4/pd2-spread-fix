@@ -8,7 +8,7 @@ function WeaponUnderbarrelLauncher:_fire_raycast(weapon_base, user_unit, from_po
 	local spread_x, spread_y = weapon_base:_get_spread(user_unit)
 	local right = direction:cross(Vector3(0, 0, 1)):normalized()
 	local up = direction:cross(right):normalized()
-	local r = math.pow(math.random(), 1.0)
+	local r = math.pow(math.random(), 0.5)
 	local theta = math.random() * 360
 	local ax = math.tan(r * spread_x * (spread_mul or 1)) * math.cos(theta)
 	local ay = math.tan(r * spread_y * (spread_mul or 1)) * math.sin(theta) * -1
