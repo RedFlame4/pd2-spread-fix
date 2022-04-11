@@ -3,7 +3,7 @@
 	"description" : "Fixes spread pattern.",
 	"author" : "Skwuruhl",
 	"contact" : "reddit.com/u/skwuruhl",
-	"version" : "v2.0",
+	"version" : "v2.1",
 	"blt_version" : 2,
 	"image" : "spread.png",
 	"color" : "255 192 203",
@@ -11,7 +11,7 @@
     {
         "identifier" : "spreadfix",
         "host": {
-            "meta": "https://github.com/Skwuruhl/pd2-spread-fix/releases/download/refs%2Fheads%2Fmaster/meta.json"
+            "meta": "https://github.com/Skwuruhl/pd2-spread-fix/releases/download/Release/meta.json"
         }
     }
 	],
