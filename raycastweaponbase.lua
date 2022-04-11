@@ -5,6 +5,7 @@ function RaycastWeaponBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul
 	if self:gadget_overrides_weapon_functions() then
 		return self:gadget_function_override("_fire_raycast", self, user_unit, from_pos, direction, dmg_mul, shoot_player, spread_mul, autohit_mul, suppr_mul)
 	end
+
 	local result = {}
 	local spread_x, spread_y = self:_get_spread(user_unit)
 	local ray_distance = self:weapon_range()
@@ -66,7 +67,11 @@ function RaycastWeaponBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul
 
 	for _, hit in ipairs(ray_hits) do
 		damage = self:get_damage_falloff(damage, hit, user_unit)
-		hit_result = self._bullet_class:on_collision(hit, self._unit, user_unit, damage)
+		hit_result = nil
+
+		if damage > 0 then
+			hit_result = self._bullet_class:on_collision(hit, self._unit, user_unit, damage)
+		end
 
 		if hit_result and hit_result.type == "death" then
 			local unit_type = hit.unit:base() and hit.unit:base()._tweak_table

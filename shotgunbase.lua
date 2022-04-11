@@ -48,7 +48,7 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 
 	mvector3.set(mvec_direction, direction)
 
-	for i = 1, shoot_through_data and 1 or self._rays, 1 do
+	for i = 1, shoot_through_data and 1 or self._rays do
 		local r = math.random()
 		local theta = math.random() * 360
 		local ax = math.tan(r * spread_x * (spread_mul or 1)) * math.cos(theta)
@@ -163,8 +163,6 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 			my_result = managers.mutators:modify_value("ShotgunBase:_fire_raycast", my_result)
 
 			if my_result and my_result.type == "death" then
-				managers.game_play_central:do_shotgun_push(col_ray.unit, col_ray.position, col_ray.ray, col_ray.distance, user_unit)
-
 				kill_data.kills = kill_data.kills + 1
 
 				if col_ray.body and col_ray.body:name() == Idstring("head") then
