@@ -5,6 +5,7 @@
 	"contact" : "reddit.com/u/skwuruhl",
 	"version" : "v1.0",
 	"blt_version" : 2,
+	"image" : "spread.png",
 	"color" : "255 192 203",
 	"hooks" : [
 		{
