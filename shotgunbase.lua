@@ -49,7 +49,7 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 	mvector3.set(mvec_direction, direction)
 
 	for i = 1, shoot_through_data and 1 or self._rays, 1 do
-		local r = math.pow(math.random(), 0.5)
+		local r = math.random()
 		local theta = math.random() * 360
 		local ax = math.tan(r * spread_x * (spread_mul or 1)) * math.cos(theta)
 		local ay = math.tan(r * spread_y * (spread_mul or 1)) * math.sin(theta) * -1
