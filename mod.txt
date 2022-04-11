@@ -14,7 +14,7 @@
             "meta": "https://raw.githubusercontent.com/Skwuruhl/pd2-updates/main/pd2-spread-fix/meta.json"
         }
     }
-	]
+	],
 	"hooks" : [
 		{
 			"hook_id" : "lib/units/weapons/raycastweaponbase",
