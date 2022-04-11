@@ -7,6 +7,14 @@
 	"blt_version" : 2,
 	"image" : "spread.png",
 	"color" : "255 192 203",
+	"updates" : [
+    {
+        "identifier" : "spreadfix",
+        "host": {
+            "meta": "https://raw.githubusercontent.com/Skwuruhl/pd2-spread-fix/master/meta.json"
+        }
+    }
+	]
 	"hooks" : [
 		{
 			"hook_id" : "lib/units/weapons/raycastweaponbase",
