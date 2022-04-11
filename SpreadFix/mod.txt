@@ -11,7 +11,7 @@
     {
         "identifier" : "spreadfix",
         "host": {
-            "meta": ""
+            "meta": "https://github.com/Skwuruhl/pd2-spread-fix/releases/download/refs%2Fheads%2Fmaster/meta.json"
         }
     }
 	],
