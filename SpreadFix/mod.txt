@@ -3,7 +3,7 @@
 	"description" : "Fixes spread pattern.",
 	"author" : "Skwuruhl",
 	"contact" : "reddit.com/u/skwuruhl",
-	"version" : "v1.0",
+	"version" : "v2.0",
 	"blt_version" : 2,
 	"image" : "spread.png",
 	"color" : "255 192 203",
