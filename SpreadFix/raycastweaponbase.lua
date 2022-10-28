@@ -1,5 +1,6 @@
 local mvec_to = Vector3()
 local mvec_spread_direction = Vector3()
+local mvec1 = Vector3()
 
 function RaycastWeaponBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoot_player, spread_mul, autohit_mul, suppr_mul)
 	if self:gadget_overrides_weapon_functions() then
@@ -8,13 +9,14 @@ function RaycastWeaponBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul
 
 	local result = {}
 	local spread_x, spread_y = self:_get_spread(user_unit)
+	spread_y = spread_y or spread_x
 	local ray_distance = self:weapon_range()
 	local right = direction:cross(Vector3(0, 0, 1)):normalized()
 	local up = direction:cross(right):normalized()
-	local r = math.random()
+	local r = math.random()^0.5
 	local theta = math.random() * 360
-	local ax = math.tan(r * spread_x * (spread_mul or 1)) * math.cos(theta)
-	local ay = math.tan(r * spread_y * (spread_mul or 1)) * math.sin(theta) * -1
+	local ax = r * math.rad(spread_x) * (spread_mul or 1) * math.cos(theta)
+	local ay = r * math.rad(spread_y) * (spread_mul or 1) * math.sin(theta)
 
 	mvector3.set(mvec_spread_direction, direction)
 	mvector3.add(mvec_spread_direction, right * ax)

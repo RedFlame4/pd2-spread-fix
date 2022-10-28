@@ -36,6 +36,8 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 				hit_objects[col_ray.unit:key()] = hit_objects[col_ray.unit:key()] or {}
 
 				table.insert(hit_objects[col_ray.unit:key()], col_ray)
+			elseif col_ray.unit:in_slot(self.shield_mask) then
+				self._bullet_class:on_collision(col_ray, self._unit, user_unit, damage / self._rays)
 			else
 				self._bullet_class:on_collision(col_ray, self._unit, user_unit, damage)
 			end
@@ -49,10 +51,10 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 	mvector3.set(mvec_direction, direction)
 
 	for i = 1, shoot_through_data and 1 or self._rays do
-		local r = math.random()
+		local r = math.random()^0.5
 		local theta = math.random() * 360
-		local ax = math.tan(r * spread_x * (spread_mul or 1)) * math.cos(theta)
-		local ay = math.tan(r * spread_y * (spread_mul or 1)) * math.sin(theta) * -1
+		local ax = r * math.rad(spread_x) * (spread_mul or 1) * math.cos(theta)
+		local ay = r * math.rad(spread_y) * (spread_mul or 1) * math.sin(theta)
 
 		mvector3.set(mvec_spread_direction, mvec_direction)
 		mvector3.add(mvec_spread_direction, right * ax)

@@ -24,10 +24,10 @@ function NewNPCRaycastWeaponBase:auto_fire_blank(direction, impact, sub_ids, ove
 
 		for i = 1, num_rays do
 			local spread_x, spread_y = self:_get_spread(user_unit)
-			local r = math.random()
+			local r = math.random()^0.5
 			local theta = math.random() * 360
-			local ax = math.tan(r * spread_x) * math.cos(theta)
-			local ay = math.tan(r * (spread_y or spread_x)) * math.sin(theta) * -1
+			local ax = r * math.rad(spread_x) * math.cos(theta)
+			local ay = r * math.rad(spread_y or spread_x) * math.sin(theta)
 
 			mvector3.set(mspread, direction)
 			mvector3.add(mspread, right * ax)
@@ -106,10 +106,10 @@ function NewNPCRaycastWeaponBase:fire_blank(direction, impact, sub_id, override_
 
 		for i = 1, num_rays do
 			local spread_x, spread_y = self:_get_spread(user_unit)
-			local r = math.random()
+			local r = math.random()^0.5
 			local theta = math.random() * 360
-			local ax = math.tan(r * spread_x) * math.cos(theta)
-			local ay = math.tan(r * (spread_y or spread_x)) * math.sin(theta) * -1
+			local ax = r * math.rad(spread_x) * math.cos(theta)
+			local ay = r * math.rad(spread_y or spread_x) * math.sin(theta)
 
 			mvector3.set(mspread, direction)
 			mvector3.add(mspread, right * ax)
@@ -219,13 +219,13 @@ function NewNPCRaycastWeaponBase:_fire_raycast(user_unit, from_pos, direction, d
 
 			if i > 1 then
 				local spread_x, spread_y = self:_get_spread(user_unit)
-				local r = math.random()
+				local r = math.random()^0.5
 				local theta = math.random() * 360
-				local ax = math.tan(r * spread_x) * math.cos(theta)
-				local ay = math.tan(r * (spread_y or spread_x)) * math.sin(theta) * -1
+				local ax = r * math.rad(spread_x) * math.cos(theta)
+				local ay = r * math.rad(spread_y or spread_x) * math.sin(theta)
 
-				mvector3.add(mvec_spread, right * math.rad(ax))
-				mvector3.add(mvec_spread, up * math.rad(ay))
+				mvector3.add(mvec_spread, right * ax)
+				mvector3.add(mvec_spread, up * ay)
 			end
 
 			self:_spawn_trail_effect(mvec_spread, col_ray)
