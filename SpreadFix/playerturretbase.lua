@@ -15,10 +15,15 @@ function PlayerTurretBase:auto_fire_blank(direction)
 	local right = direction:cross(math.UP):normalized()
 	local up = direction:cross(right):normalized()
 	local spread_x, spread_y = self:_get_spread()
-	local r = math.random()^0.5
+	spread_y = spread_y or spread_x 
+
+	local r = math.random()
 	local theta = math.random() * 360
-	local ax = r * math.rad(spread_x) * math.cos(theta)
-	local ay = r * math.rad(spread_y or spread_x) * math.sin(theta)
+	spread_x = math.max(math.min(spread_x, 90), -90)
+	spread_y = math.max(math.min(spread_y, 90), -90)
+
+	local ax = math.cos(theta) * math.tan(r * spread_x)
+	local ay = -1 * math.sin(theta) * math.tan(r * spread_y)
 
 	mvector3.set(mspread, direction)
 	mvector3.add(mspread, right * ax)

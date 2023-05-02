@@ -24,10 +24,15 @@ function NewNPCRaycastWeaponBase:auto_fire_blank(direction, impact, sub_ids, ove
 
 		for i = 1, num_rays do
 			local spread_x, spread_y = self:_get_spread(user_unit)
-			local r = math.random()^0.5
+			spread_y = spread_y or spread_x
+
+			local r = math.random()
 			local theta = math.random() * 360
-			local ax = r * math.rad(spread_x) * math.cos(theta)
-			local ay = r * math.rad(spread_y or spread_x) * math.sin(theta)
+			spread_x = math.max(math.min(spread_x, 90), -90)
+			spread_y = math.max(math.min(spread_y, 90), -90)
+
+			local ax = math.cos(theta) * math.tan(r * spread_x)
+			local ay = -1 * math.sin(theta) * math.tan(r * spread_y)
 
 			mvector3.set(mspread, direction)
 			mvector3.add(mspread, right * ax)
@@ -106,10 +111,15 @@ function NewNPCRaycastWeaponBase:fire_blank(direction, impact, sub_id, override_
 
 		for i = 1, num_rays do
 			local spread_x, spread_y = self:_get_spread(user_unit)
-			local r = math.random()^0.5
+			spread_y = spread_y or spread_x
+
+			local r = math.random()
 			local theta = math.random() * 360
-			local ax = r * math.rad(spread_x) * math.cos(theta)
-			local ay = r * math.rad(spread_y or spread_x) * math.sin(theta)
+			spread_x = math.max(math.min(spread_x, 90), -90)
+			spread_y = math.max(math.min(spread_y, 90), -90)
+
+			local ax = math.cos(theta) * math.tan(r * spread_x)
+			local ay = -1 * math.sin(theta) * math.tan(r * spread_y)
 
 			mvector3.set(mspread, direction)
 			mvector3.add(mspread, right * ax)
@@ -219,10 +229,15 @@ function NewNPCRaycastWeaponBase:_fire_raycast(user_unit, from_pos, direction, d
 
 			if i > 1 then
 				local spread_x, spread_y = self:_get_spread(user_unit)
-				local r = math.random()^0.5
+				spread_y = spread_y or spread_x 
+
+				local r = math.random()
 				local theta = math.random() * 360
-				local ax = r * math.rad(spread_x) * math.cos(theta)
-				local ay = r * math.rad(spread_y or spread_x) * math.sin(theta)
+				spread_x = math.max(math.min(spread_x, 90), -90)
+				spread_y = math.max(math.min(spread_y, 90), -90)
+
+				local ax = math.cos(theta) * math.tan(r * spread_x)
+				local ay = -1 * math.sin(theta) * math.tan(r * spread_y)
 
 				mvector3.add(mvec_spread, right * ax)
 				mvector3.add(mvec_spread, up * ay)
