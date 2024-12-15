@@ -22,7 +22,7 @@ function WeaponUnderbarrelLauncher:_fire_raycast(weapon_base, user_unit, from_po
 	local theta = math.random() * 360
 	spread_x = math.max(math.min(spread_x * spread_mul, 90), -90)
 	spread_y = math.max(math.min(spread_y * spread_mul, 90), -90)
-	
+
 	local ax = math.cos(theta) * math.tan(r * spread_x)
 	local ay = -1 * math.sin(theta) * math.tan(r * spread_y)
 

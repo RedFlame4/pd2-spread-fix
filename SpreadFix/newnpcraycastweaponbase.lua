@@ -206,11 +206,11 @@ function NewNPCRaycastWeaponBase:_fire_raycast(user_unit, from_pos, direction, d
 
 	if col_ray then
 		if col_ray.unit:in_slot(self._character_slotmask) then
-			hit_unit = InstantBulletBase:on_collision(col_ray, self._unit, user_unit, damage)
+			hit_unit = InstantBulletBase:on_collision(col_ray, self._unit, user_unit, damage, self._fires_blanks)
 		elseif shoot_player and self._hit_player and self:damage_player(col_ray, from_pos, direction) then
 			InstantBulletBase:on_hit_player(col_ray, self._unit, user_unit, self._damage * (dmg_mul or 1))
 		else
-			hit_unit = InstantBulletBase:on_collision(col_ray, self._unit, user_unit, damage)
+			hit_unit = InstantBulletBase:on_collision(col_ray, self._unit, user_unit, damage, self._fires_blanks)
 		end
 	elseif shoot_player and self._hit_player then
 		local hit, ray_data = self:damage_player(col_ray, from_pos, direction)
@@ -256,7 +256,7 @@ function NewNPCRaycastWeaponBase:_fire_raycast(user_unit, from_pos, direction, d
 	end
 
 	if col_ray and col_ray.unit then
-		local ap_skill = self._is_team_ai and managers.player:has_category_upgrade("team", "crew_ai_ap_ammo")
+		local ap_skill = self._is_team_ai and self._has_ap_rounds
 
 		repeat
 			if hit_unit and not ap_skill then

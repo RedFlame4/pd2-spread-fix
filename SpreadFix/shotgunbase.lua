@@ -27,6 +27,7 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 	local result = {}
 	local all_hits = {}
 	local hit_effects = {}
+	local all_enemies_hit = {}
 	local alert_rays = self._alert_events and {}
 	local all_hits_lookup = {}
 	local alert_rays_lookup = alert_rays and {}
@@ -90,15 +91,10 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 	end
 
 	local ray_distance = self:weapon_range(user_unit)
-	local can_autoaim = self._autoaim
-	local auto_hit_candidate, suppression_enemies = self:check_autoaim(from_pos, direction)
-
-	if suppression_enemies and self._suppression then
-		result.enemies_in_cone = suppression_enemies
-	end
-
+	local can_autoaim = self._autoaim and self._autohit_data and true or false
 	local spread_x, spread_y = self:_get_spread(user_unit)
 	spread_y = spread_y or spread_x
+
 	spread_mul = spread_mul or 1
 
 	mvec3_cross(mvec_right, direction, math.UP)
@@ -124,35 +120,47 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 		mvec3_mul(mvec_to, ray_distance)
 		mvec3_add(mvec_to, from_pos)
 
-		local ray_hits, hit_enemy = self:_collect_hits(from_pos, mvec_to)
-
+		local ray_hits, hit_enemy, enemies_hit = self:_collect_hits(from_pos, mvec_to)
 		if can_autoaim then
 			can_autoaim = false
 			local weight = 0.1
 
-			if auto_hit_candidate and not hit_enemy then
-				local autohit_chance = 1 - math.clamp((self._autohit_current - self._autohit_data.MIN_RATIO) / (self._autohit_data.MAX_RATIO - self._autohit_data.MIN_RATIO), 0, 1)
-
-				if autohit_mul then
-					autohit_chance = autohit_chance * autohit_mul
-				end
-
-				if math_random() < autohit_chance then
-					self._autohit_current = (self._autohit_current + weight) / (1 + weight)
-
-					mvec3_set(mvec_spread_direction, auto_hit_candidate.ray)
-					mvec3_set(mvec_to, mvec_spread_direction)
-					mvec3_mul(mvec_to, ray_distance)
-					mvec3_add(mvec_to, from_pos)
-
-					ray_hits, hit_enemy = self:_collect_hits(from_pos, mvec_to)
-				end
-			end
-
 			if hit_enemy then
 				self._autohit_current = (self._autohit_current + weight) / (1 + weight)
-			elseif auto_hit_candidate then
-				self._autohit_current = self._autohit_current / (1 + weight)
+			else
+				local auto_hit_candidate, enemies_to_suppress = self:check_autoaim(from_pos, direction, nil, nil, nil, true)
+				result.enemies_in_cone = enemies_to_suppress or false
+
+				if auto_hit_candidate then
+					local autohit_chance = self:get_current_autohit_chance_for_roll()
+
+					if autohit_mul then
+						autohit_chance = autohit_chance * autohit_mul
+					end
+
+					if math_random() < autohit_chance then
+						self._autohit_current = (self._autohit_current + weight) / (1 + weight)
+
+						mvec3_set(mvec_spread_direction, auto_hit_candidate.ray)
+						mvec3_set(mvec_to, mvec_spread_direction)
+						mvec3_mul(mvec_to, ray_distance)
+						mvec3_add(mvec_to, from_pos)
+
+						ray_hits, hit_enemy, enemies_hit = self:_collect_hits(from_pos, mvec_to)
+					end
+				end
+
+				if hit_enemy then
+					self._autohit_current = (self._autohit_current + weight) / (1 + weight)
+				elseif auto_hit_candidate then
+					self._autohit_current = self._autohit_current / (1 + weight)
+				end
+			end
+		end
+
+		if hit_enemy then
+			for u_key, enemy in pairs(enemies_hit) do
+				all_enemies_hit[u_key] = enemy
 			end
 		end
 
@@ -182,7 +190,7 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 		headshots = 0,
 		civilian_kills = 0
 	}
-	local bullet_class = self._bullet_class
+	local bullet_class = self:bullet_class()
 	local damage = self:_get_current_damage(dmg_mul)
 	local check_additional_achievements = self._ammo_data and self._ammo_data.check_additional_achievements
 
@@ -201,6 +209,11 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 			local hit_result = bullet_class:on_collision(hit, self._unit, user_unit, dmg)
 			hit_result = managers.mutators:modify_value("ShotgunBase:_fire_raycast", hit_result)
 
+			if check_additional_achievements then
+				hit_through_wall = hit_through_wall or hit.unit:in_slot(self.wall_mask)
+				hit_through_shield = hit_through_shield or hit.unit:in_slot(self.shield_mask) and alive(hit.unit:parent())
+			end
+
 			if hit_result then
 				hit.damage_result = hit_result
 				hit_anyone = true
@@ -208,7 +221,8 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 
 				if hit_result.type == "death" then
 					kill_data.kills = kill_data.kills + 1
-					local unit_type = hit.unit:base() and hit.unit:base()._tweak_table
+					local unit_base = hit.unit:base()
+					local unit_type = unit_base and unit_base._tweak_table
 					local is_civilian = unit_type and is_civ_f(unit_type)
 
 					if is_civilian then
@@ -218,10 +232,7 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 					end
 
 					if check_additional_achievements then
-						hit_through_wall = hit_through_wall or hit.unit:in_slot(self.wall_mask)
-						hit_through_shield = hit_through_shield or hit.unit:in_slot(self.shield_mask) and alive(hit.unit:parent())
-
-						self:_check_kill_achievements(cop_kill_count, unit_type, is_civilian, hit_through_wall, hit_through_shield)
+						self:_check_kill_achievements(cop_kill_count, unit_base, unit_type, is_civilian, hit_through_wall, hit_through_shield)
 					end
 				end
 			end
@@ -232,8 +243,26 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 		self:_check_tango_achievements(cop_kill_count)
 	end
 
+	self:_check_one_shot_shotgun_achievements(kill_data)
+
+	if result.enemies_in_cone == nil then
+		result.enemies_in_cone = self._suppression and self:check_suppression(from_pos, direction, all_enemies_hit) or nil
+	elseif all_enemies_hit and self._suppression then
+		result.enemies_in_cone = result.enemies_in_cone or {}
+		local all_enemies = managers.enemy:all_enemies()
+
+		for u_key, enemy in pairs(all_enemies_hit) do
+			if all_enemies[u_key] then
+				result.enemies_in_cone[u_key] = {
+					error_mul = 1,
+					unit = enemy
+				}
+			end
+		end
+	end
+
 	if alert_rays then
-		result.rays = #alert_rays > 0 and alert_rays
+		result.rays = alert_rays
 	end
 
 	if self._autoaim then
@@ -244,8 +273,6 @@ function ShotgunBase:_fire_raycast(user_unit, from_pos, direction, dmg_mul, shoo
 			managers.statistics:shot_fired(self._shot_fired_stats_table)
 		end
 	end
-
-	self:_check_one_shot_shotgun_achievements(kill_data)
 
 	return result
 end
